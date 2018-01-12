@@ -1,6 +1,7 @@
 package com.example.wangmutian.tab;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +9,8 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,6 +26,10 @@ public class InitActivity extends BaseActivity implements View.OnClickListener {
     private LinearLayout ll;
     LinearLayout guidao;
     View viewun;
+    int childcount;
+    HorizontalScrollView horizontalScrollView;
+    int scrolljuli=0;
+    int pingmuwidth;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,19 +44,26 @@ public class InitActivity extends BaseActivity implements View.OnClickListener {
         guidao=view.findViewById(R.id.guidao);
         ll=view.findViewById(R.id.ll);
         viewun=view.findViewById(R.id.undifind);
-
-        int childcount=ll.getChildCount();
+        horizontalScrollView=view.findViewById(R.id.horizontalScrollView);
+        childcount=ll.getChildCount();
         for(int i = 0; i< childcount ; i++){
             ll.getChildAt(i).setOnClickListener(this);
         }
 
+        WindowManager wm = (WindowManager) getContext()
+                .getSystemService(Context.WINDOW_SERVICE);
+        pingmuwidth = wm.getDefaultDisplay().getWidth();
 
         point(0,0);
 
-//        ll.getView();
-//        ll.setChildClickable(false);
-        ////得到view在父容器中的位置下标
-        //int index=((ViewGroup)v.getParent()).indexOfChild(v);
+
+        horizontalScrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                scrolljuli=scrollX;
+            }
+        });
+
         return view;
     }
 
@@ -75,7 +89,7 @@ public class InitActivity extends BaseActivity implements View.OnClickListener {
     @Override
     public void initData() {
         list = new ArrayList<Basepage>();
-        for(int i=0;i<5;i++){
+        for(int i=0;i<childcount;i++){
             list.add(new NewListview(mActivity));
         }
 
@@ -86,9 +100,25 @@ public class InitActivity extends BaseActivity implements View.OnClickListener {
 
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                System.out.println("---------->postion:"+position);
+
+                int getleft=ll.getChildAt(position).getLeft();
+
+                System.out.println("---------->getleft:"+getleft);
                 pointCoursor(position);
                 point(position,positionOffset);
+//                int scrolljuli=0;
+//                int pingmuwidth;
+                horizontalScrollView.getWidth();
+
+                if(getleft-scrolljuli <= 68*2){
+                    scrolljuli=scrolljuli-68;
+                    horizontalScrollView.scrollTo(scrolljuli,0);
+                }
+
+                if(pingmuwidth-getleft < 68*2){
+                    scrolljuli=scrolljuli+68;
+                    horizontalScrollView.scrollTo(scrolljuli,0);
+                }
 
             }
 
